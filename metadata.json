@@ -1,0 +1,6 @@
+{
+  "name": "Knapsack Game — Simulasi 0/1 Knapsack & Algoritma Greedy",
+  "description": "Permainan edukasi interaktif dan simulasi visual masalah 0/1 Knapsack: bandingkan strategi pemilihan manual, algoritma Greedy by Profit, dan solusi optimal Dynamic Programming.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Travel Knapsack Game — Simulasi Koper Perjalanan 100 kg (Tugas Strategi Algoritma)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #EEF2F5;
+            --pn: #FFFFFF;
+            --ink: #12202B;
+            --mut: #526373;
+            --ln: #CFD9E2;
+            --ac: #0E7C7B;
+            --acs: #D8F1F0;
+            --gold: #D99B16;
+            --bad: #C43B3B;
+            --cur: #FFF3C7;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            color-scheme: light;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0C141C;
+                --pn: #13202B;
+                --ink: #E8F0F7;
+                --mut: #94A8B8;
+                --ln: #253645;
+                --ac: #36C2BF;
+                --acs: #123638;
+                --gold: #F2BD42;
+                --bad: #F27474;
+                --cur: #3D3210;
+                color-scheme: dark;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+            line-height: 1.45;
+        }
+
+        h1, h2, h3 {
+            font-family: "Bricolage Grotesque", system-ui, sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .mono {
+            font-family: "JetBrains Mono", monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        button, input, select {
+            font: inherit;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        header {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--ln);
+        }
+
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: var(--ac);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .who {
+            color: var(--mut);
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        .btn {
+            border: 1px solid var(--ln);
+            background: var(--pn);
+            border-radius: 12px;
+            padding: 8px 14px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover:not(:disabled) {
+            border-color: var(--ac);
+        }
+
+        .btn.pri {
+            background: var(--ac);
+            border-color: var(--ac);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 400px;
+            gap: 20px;
+            padding: 20px 22px 32px;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        section {
+            background: var(--pn);
+            border: 1px solid var(--ln);
+            border-radius: 18px;
+            padding: 20px;
+        }
+
+        h2 {
+            margin: 0 0 4px;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .sub {
+            font-size: 0.8rem;
+            color: var(--mut);
+            margin: 0 0 14px;
+        }
+
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--ln);
+        }
+
+        .tools input,
+        .tools select {
+            border: 1px solid var(--ln);
+            border-radius: 10px;
+            padding: 8px 12px;
+            background: var(--bg);
+            font-size: 0.85rem;
+        }
+
+        .tools input {
+            width: 115px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+            gap: 12px;
+        }
+
+        .card {
+            text-align: left;
+            border: 1px solid var(--ln);
+            background: var(--bg);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            transition: transform 0.16s, border-color 0.16s;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .card .ic {
+            font-size: 1.9rem;
+            line-height: 1;
+        }
+
+        .card .id {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--mut);
+        }
+
+        .card .nm {
+            font-weight: 700;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card .cat {
+            font-size: 0.72rem;
+            color: var(--mut);
+        }
+
+        .card-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-top: 6px;
+            border-top: 1px solid var(--ln);
+            margin-top: 2px;
+        }
+
+        .card .w {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .card .p {
+            font-family: "JetBrains Mono", monospace;
+            color: var(--ac);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .card:hover:not(:disabled) {
+            border-color: var(--ac);
+            transform: translateY(-2px);
+        }
+
+        .card.in {
+            background: var(--acs);
+            border-color: var(--ac);
+            opacity: 0.82;
+        }
+
+        .card.big {
+            opacity: 0.42;
+            cursor: not-allowed;
+        }
+
+        .card.cur {
+            background: var(--cur);
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold);
+        }
+
+        .pg {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--ln);
+        }
+
+        .seg {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 1px solid var(--ln);
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 14px;
+        }
+
+        .seg button {
+            border: 0;
+            background: transparent;
+            border-radius: 9px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--mut);
+        }
+
+        .seg button.on {
+            background: var(--ac);
+            color: #fff;
+        }
+
+        .bar {
+            height: 16px;
+            border-radius: 99px;
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: var(--ac);
+            transition: width 0.35s;
+        }
+
+        .bar.full i {
+            background: var(--gold);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .stats div {
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            color: var(--mut);
+        }
+
+        .stats b {
+            display: block;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 1.2rem;
+            color: var(--ink);
+            margin-top: 2px;
+        }
+
+        .bag {
+            list-style: none;
+            margin: 10px 0 14px;
+            padding: 0;
+            max-height: 280px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bag li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--ln);
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+
+        .bag li.cur {
+            background: var(--cur);
+            border-color: var(--gold);
+        }
+
+        .bag .t {
+            flex: 1;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.8rem;
+        }
+
+        .bag .x {
+            border: 0;
+            background: transparent;
+            color: var(--bad);
+            font-size: 1.25rem;
+            font-weight: 800;
+            padding: 0 6px;
+        }
+
+        .empty {
+            color: var(--mut);
+            text-align: center;
+            padding: 22px 0;
+            font-size: 0.88rem;
+        }
+
+        .log {
+            min-height: 2.8em;
+            font-size: 0.82rem;
+            color: var(--mut);
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: var(--bg);
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 20, 28, 0.68);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 20;
+        }
+
+        .mask[hidden] {
+            display: none;
+        }
+
+        .modal {
+            background: var(--pn);
+            border: 1px solid var(--ln);
+            border-radius: 20px;
+            padding: 26px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            max-height: 92%;
+            overflow: auto;
+        }
+
+        .modal label {
+            display: block;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.88rem;
+            margin: 12px 0 6px;
+        }
+
+        .modal input[type=text] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--ln);
+            border-radius: 12px;
+            background: var(--bg);
+        }
+
+        .lv {
+            display: grid;
+            gap: 8px;
+        }
+
+        .lv label {
+            border: 1px solid var(--ln);
+            border-radius: 12px;
+            padding: 11px 14px;
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--bg);
+        }
+
+        .lv label:has(input:checked) {
+            border-color: var(--ac);
+            background: var(--acs);
+        }
+
+        .res {
+            text-align: left;
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+
+        .res p {
+            margin: 6px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: var(--ink);
+            color: var(--bg);
+            padding: 9px 18px;
+            border-radius: 99px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        #toast.on {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand-wrap">
+            <div class="brand-badge">🧳</div>
+            <div>
+                <h1>Travel Knapsack Game</h1>
+                <div class="who" id="who"></div>
+            </div>
+        </div>
+        <button class="btn" id="newBtn">Rencana Baru</button>
+    </header>
+    <main>
+        <section aria-label="Daftar barang">
+            <h2>Daftar Barang Bawaan Liburan</h2>
+            <p class="sub">Pilih barang ke dalam koper perjalanan (kapasitas maksimal 100 kg).</p>
+            <div class="tools">
+                <input id="q" type="number" min="1" placeholder="Cari ID" aria-label="Cari ID barang">
+                <select id="catFil" aria-label="Filter Kategori">
+                    <option value="all">Semua Kategori</option>
+                    <option value="Pakaian">Pakaian</option>
+                    <option value="Elektronik">Elektronik</option>
+                    <option value="Perlengkapan Liburan">Perlengkapan Liburan</option>
+                    <option value="Toiletries & Obat">Toiletries &amp; Obat</option>
+                    <option value="Bekal & Konsumsi">Bekal &amp; Konsumsi</option>
+                    <option value="Aksesori & Dokumen">Aksesori &amp; Dokumen</option>
+                </select>
+                <select id="fil" aria-label="Filter">
+                    <option value="all">Semua Status</option>
+                    <option value="free">Belum di Koper</option>
+                    <option value="in">Sudah di Koper</option>
+                    <option value="fit">Muat di Koper</option>
+                </select>
+                <select id="srt" aria-label="Urutkan">
+                    <option value="id">Urut ID</option>
+                    <option value="w">Urut Bobot</option>
+                    <option value="p">Urut Profit</option>
+                </select>
+                <button class="btn" id="dir" aria-label="Arah urutan">↑ Naik</button>
+            </div>
+            <div class="grid" id="grid"></div>
+            <div class="pg">
+                <button class="btn" id="pv">← Sebelumnya</button>
+                <span id="pn" class="mono"></span>
+                <button class="btn" id="nx">Berikutnya →</button>
+            </div>
+        </section>
+        <section aria-label="Koper Perjalanan">
+            <h2>Koper Perjalanan 🧳</h2>
+            <p class="sub">Kapasitas maksimal koper: <b id="cap" class="mono">100</b> kg</p>
+            <div class="seg" role="group" aria-label="Mode">
+                <button id="mM" class="on">Manual Mode</button>
+                <button id="mA">Automatic Mode</button>
+            </div>
+            <div class="bar" id="bar"><i></i></div>
+            <div class="stats">
+                <div>Total Berat<b id="tw"></b></div>
+                <div>Sisa Kapasitas<b id="rw"></b></div>
+                <div style="grid-column:span 2">Total Profit<b id="tp" style="color:var(--ac);font-size:1.45rem"></b></div>
+            </div>
+            <div class="log" id="log" aria-live="polite"></div>
+            <ul class="bag" id="bag"></ul>
+            <div class="row">
+                <button class="btn pri" id="run" hidden style="flex:1">Jalankan Greedy</button>
+                <button class="btn" id="rst">Kosongkan Koper</button>
+                <button class="btn pri" id="fin" style="flex:1">Selesai Mengemas</button>
+            </div>
+        </section>
+    </main>
+
+    <div class="mask" id="startM">
+        <div class="modal">
+            <h2>Rencana Koper Perjalanan</h2>
+            <p class="sub" style="margin-bottom:10px">Tugas Mata Kuliah Strategi Algoritma · Kapasitas Koper 100 kg</p>
+            <label for="nm">Nama pemain / mahasiswa</label>
+            <input type="text" id="nm" maxlength="20" placeholder="Tulis namamu">
+            <label>Skala perjalanan (Koper 100 kg)</label>
+            <div class="lv">
+                <label><input type="radio" name="lv" value="easy" checked> Easy: 12 barang liburan, koper 100 kg</label>
+                <label><input type="radio" name="lv" value="medium"> Medium: 25 barang liburan, koper 100 kg</label>
+                <label><input type="radio" name="lv" value="hard"> Hard: 40 barang liburan, koper 100 kg</label>
+            </div>
+            <p id="err" style="color:var(--bad);margin:8px 0 0;font-weight:600"></p>
+            <button class="btn pri" id="go" style="margin-top:14px;width:100%;padding:11px">Mulai Kemas Koper</button>
+        </div>
+    </div>
+    <div class="mask" id="resM" hidden>
+        <div class="modal" id="resB"></div>
+    </div>
+    <div id="toast"></div>
+
+    <script>
+        const $ = s => document.querySelector(s);
+        const LV = { easy: { n: 12, cap: 100, wmax: 24 }, medium: { n: 25, cap: 100, wmax: 28 }, hard: { n: 40, cap: 100, wmax: 30 } };
+        const CATS = [
+            { ic: '🧥', nm: 'Jaket Musim Dingin', cat: 'Pakaian' },
+            { ic: '👕', nm: 'Set Kaos & Kemeja', cat: 'Pakaian' },
+            { ic: '👖', nm: 'Celana Cargo Panjang', cat: 'Pakaian' },
+            { ic: '👟', nm: 'Sepatu Sneakers Jalan', cat: 'Pakaian' },
+            { ic: '📷', nm: 'Kamera Mirrorless', cat: 'Elektronik' },
+            { ic: '💻', nm: 'Laptop & Charger', cat: 'Elektronik' },
+            { ic: '🎧', nm: 'Headphone Peredam', cat: 'Elektronik' },
+            { ic: '🔋', nm: 'Powerbank 20.000mAh', cat: 'Elektronik' },
+            { ic: '⛺', nm: 'Tenda Piknik Lipat', cat: 'Perlengkapan Liburan' },
+            { ic: '🛌', nm: 'Sleeping Bag Hangat', cat: 'Perlengkapan Liburan' },
+            { ic: '☂️', nm: 'Payung Lipat Travel', cat: 'Perlengkapan Liburan' },
+            { ic: '🔭', nm: 'Teropong Wisata', cat: 'Perlengkapan Liburan' },
+            { ic: '🧴', nm: 'Tas Perlengkapan Mandi', cat: 'Toiletries & Obat' },
+            { ic: '🩹', nm: 'Kotak P3K & Obat', cat: 'Toiletries & Obat' },
+            { ic: '☀️', nm: 'Sunscreen & Skincare', cat: 'Toiletries & Obat' },
+            { ic: '🍱', nm: 'Kotak Bekal Makanan', cat: 'Bekal & Konsumsi' },
+            { ic: '☕', nm: 'Termos Air Panas', cat: 'Bekal & Konsumsi' },
+            { ic: '🍎', nm: 'Paket Buah & Camilan', cat: 'Bekal & Konsumsi' },
+            { ic: '🛂', nm: 'Dompet Paspor & Tiket', cat: 'Aksesori & Dokumen' },
+            { ic: '🕶️', nm: 'Kacamata Hitam UV', cat: 'Aksesori & Dokumen' },
+            { ic: '🎁', nm: 'Kotak Oleh-Oleh', cat: 'Aksesori & Dokumen' }
+        ];
+        const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+        const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const fp = n => (n / 10).toFixed(1);
+        const PER = 12;
+        let S = { items: [], bag: new Set(), mode: 'manual', page: 1, sort: 'id', asc: true, fil: 'all', cat: 'all', q: '', over: false, run: 0, running: false, cur: null, log: '' };
+
+        function build() {
+            const L = LV[S.lv], pool = [...CATS].sort(() => Math.random() - .5);
+            S.cap = L.cap;
+            S.items = Array.from({ length: L.n }, (_, i) => {
+                const w = rnd(4, L.wmax);
+                const c = pool[i % pool.length];
+                return { id: i + 1, ic: c.ic, nm: c.nm, cat: c.cat, w, p10: w * rnd(10, 55) + rnd(10, 150) };
+            });
+            const dp = new Array(S.cap + 1).fill(0);
+            for (const it of S.items) for (let c = S.cap; c >= it.w; c--) dp[c] = Math.max(dp[c], dp[c - it.w] + it.p10);
+            S.opt = dp[S.cap];
+        }
+        const byId = id => S.items.find(i => i.id === id);
+        const wt = () => [...S.bag].reduce((a, i) => a + byId(i).w, 0);
+        const pf = () => [...S.bag].reduce((a, i) => a + byId(i).p10, 0);
+        function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 1600) }
+
+        function render() {
+            const w = wt(), p = pf(), auto = S.mode === 'auto';
+            $('#who').textContent = `${S.name} · ${S.lv[0].toUpperCase() + S.lv.slice(1)} · ${S.items.length} barang · Koper ${S.cap} kg`;
+            $('#cap').textContent = S.cap; $('#tw').textContent = w + ' kg'; $('#rw').textContent = (S.cap - w) + ' kg'; $('#tp').textContent = fp(p);
+            $('#bar').classList.toggle('full', w === S.cap); $('#bar i').style.width = (w / S.cap * 100) + '%';
+            $('#mM').classList.toggle('on', !auto); $('#mA').classList.toggle('on', auto);
+            $('#run').hidden = !auto; $('#run').disabled = S.running || S.over;
+            $('#fin').disabled = S.running || (auto && !S.over);
+            $('#log').textContent = S.log || (auto ? 'Tekan “Jalankan Greedy” untuk melihat prosesnya.' : 'Klik kartu barang di kiri untuk mengemas koper 100 kg.');
+            $('#dir').textContent = S.asc ? '↑ Naik' : '↓ Turun';
+            let list = S.items.filter(i => {
+                if (S.q && String(i.id) !== String(S.q)) return false;
+                if (S.cat !== 'all' && i.cat !== S.cat) return false;
+                const inb = S.bag.has(i.id);
+                return S.fil === 'all' || (S.fil === 'free' && !inb) || (S.fil === 'in' && inb) || (S.fil === 'fit' && !inb && i.w <= S.cap - w)
+            });
+            const k = { id: i => i.id, w: i => i.w, p: i => i.p10 }[S.sort];
+            list.sort((a, b) => (k(a) - k(b) || a.id - b.id) * (S.asc ? 1 : -1));
+            const pages = Math.max(1, Math.ceil(list.length / PER)); S.page = Math.min(S.page, pages);
+            $('#pn').textContent = `Hal ${S.page} / ${pages}`; $('#pv').disabled = S.page <= 1; $('#nx').disabled = S.page >= pages;
+            $('#grid').innerHTML = list.slice((S.page - 1) * PER, S.page * PER).map(i => {
+                const inb = S.bag.has(i.id), big = !inb && i.w > S.cap - w;
+                return `<button class="card${inb ? ' in' : ''}${big ? ' big' : ''}${S.cur === i.id ? ' cur' : ''}" data-id="${i.id}" ${S.mode !== 'manual' || S.over ? 'disabled' : ''}>
+    <div class="card-top"><span class="ic">${i.ic}</span><span class="id">#${i.id}</span></div><div class="nm">${esc(i.nm)}</div><div class="cat">${esc(i.cat)}</div><div class="card-foot"><span class="w">Bobot: ${i.w} kg</span><span class="p">Profit: ${fp(i.p10)}</span></div></button>`
+            }).join('') || '<div class="empty">Tidak ada barang.</div>';
+            $('#bag').innerHTML = S.bag.size ? [...S.bag].map(id => {
+                const i = byId(id);
+                return `<li class="${S.cur === id ? 'cur' : ''}"><span>${i.ic}</span><span class="t">#${i.id} ${esc(i.nm)} (${esc(i.cat)}) · ${i.w} kg · Profit ${fp(i.p10)}</span>${auto || S.over ? '' : `<button class="x" data-x="${id}">×</button>`}</li>`
+            }).join('') : '<li class="empty" style="justify-content:center;border:0">Koper masih kosong.</li>';
+        }
+
+        function add(id) {
+            if (S.over || S.mode !== 'manual' || S.bag.has(id)) return;
+            const it = byId(id);
+            if (wt() + it.w > S.cap) { toast(`Barang #${id} (${it.w} kg) melebihi sisa kapasitas koper.`); return }
+            S.bag.add(id); render();
+            if (pf() === S.opt) finish(true);
+        }
+        function reset() { S.run++; S.running = false; S.over = false; S.bag.clear(); S.cur = null; S.log = ''; render() }
+        function setMode(m) { if (S.mode === m) return; S.mode = m; reset(); render() }
+
+        async function greedy() {
+            if (S.running || S.over) return;
+            reset(); const my = ++S.run; S.running = true;
+            const ord = [...S.items].sort((a, b) => b.p10 - a.p10 || a.id - b.id);
+            const slow = S.items.length > 25 ? 320 : 550;
+            for (let n = 0; n < ord.length; n++) {
+                if (S.run !== my) return;
+                const it = ord[n], ok = wt() + it.w <= S.cap;
+                S.cur = it.id; if (ok) S.bag.add(it.id);
+                S.log = `Langkah ${n + 1}/${ord.length}: #${it.id} ${it.nm} (${it.w} kg, profit ${fp(it.p10)}) ${ok ? 'dimasukkan.' : `dilewati, sisa ${S.cap - wt()} kg tidak cukup.`}`;
+                render(); await sleep(ok ? slow : slow / 3);
+            }
+            if (S.run !== my) return;
+            S.running = false; S.cur = null; S.over = true; S.log = 'Greedy selesai.'; render(); finish(false);
+        }
+
+        function finish(win) {
+            const p = pf(), w = wt(), auto = S.mode === 'auto', best = p === S.opt;
+            if (win === true) { S.over = true; render() }
+            let head, note;
+            if (win === true) { head = `<h2>Selamat, ${esc(S.name)}!</h2>`; note = 'Kombinasi kopermu mencapai profit maksimal.' }
+            else if (auto) {
+                head = `<h2>Hasil Greedy by Profit</h2>`;
+                note = best ? 'Kebetulan greedy menghasilkan solusi optimal pada data ini.' : `Greedy tidak optimal di sini: selisih ${fp(S.opt - p)}. Ini contoh bahwa greedy tidak selalu menjamin solusi terbaik pada 0/1 Knapsack.`
+            }
+            else {
+                head = `<h2>Evaluasi Koper Perjalanan</h2>`; S.over = !best;
+                note = best ? 'Profit maksimal tercapai.' : `Belum optimal, kurang ${fp(S.opt - p)} dari profit maksimal.`;
+            }
+            $('#resB').innerHTML = `${head}<div class="res"><p><span>Pemain</span><b>${esc(S.name)}</b></p><p><span>Total Berat</span><b class="mono">${w} / ${S.cap} kg</b></p><p><span>Total Profit</span><b class="mono">${fp(p)}</b></p><p><span>Profit Maksimal (DP)</span><b class="mono">${fp(S.opt)}</b></p></div><p>${note}</p>
+  <div class="row" style="justify-content:center">${!auto && !best ? '<button class="btn" id="cont">Lanjut Mengemas</button>' : ''}<button class="btn pri" id="again">Rencana Baru</button><button class="btn" id="cls">Tutup</button></div>`;
+            $('#resM').hidden = false;
+            const cls = () => { $('#resM').hidden = true; render() };
+            $('#cls').onclick = cls;
+            $('#again').onclick = () => { cls(); $('#startM').hidden = false };
+            if ($('#cont')) $('#cont').onclick = () => { S.over = false; cls() };
+            if (!auto && !best) S.over = false;
+        }
+
+        $('#go').onclick = () => {
+            const n = $('#nm').value.trim();
+            if (!n) { $('#err').textContent = 'Nama pemain wajib diisi.'; return }
+            S.name = n; S.lv = document.querySelector('input[name=lv]:checked').value;
+            $('#err').textContent = ''; build(); S.mode = 'manual'; S.page = 1; S.q = ''; $('#q').value = ''; S.fil = 'all'; $('#fil').value = 'all'; S.cat = 'all'; $('#catFil').value = 'all';
+            reset(); $('#startM').hidden = true;
+        };
+        $('#newBtn').onclick = () => { S.run++; S.running = false; $('#startM').hidden = false };
+        $('#grid').onclick = e => { const c = e.target.closest('[data-id]'); if (c) add(+c.dataset.id) };
+        $('#bag').onclick = e => { const x = e.target.closest('[data-x]'); if (x && !S.over && !S.running) { S.bag.delete(+x.dataset.x); render() } };
+        $('#mM').onclick = () => setMode('manual'); $('#mA').onclick = () => setMode('auto');
+        $('#run').onclick = greedy; $('#rst').onclick = reset; $('#fin').onclick = () => finish(false);
+        $('#q').oninput = e => { S.q = e.target.value; S.page = 1; render() };
+        $('#catFil').onchange = e => { S.cat = e.target.value; S.page = 1; render() };
+        $('#fil').onchange = e => { S.fil = e.target.value; S.page = 1; render() };
+        $('#srt').onchange = e => { S.sort = e.target.value; S.page = 1; render() };
+        $('#dir').onclick = () => { S.asc = !S.asc; render() };
+        $('#pv').onclick = () => { S.page--; render() }; $('#nx').onclick = () => { S.page++; render() };
+    </script>
+</body>
+
+</html>
